@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -8,6 +8,9 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
+import { Store } from '@ngrx/store';
+import { getCategoriesAction, selectCategories } from '@org/category';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'ecom-main-nav',
@@ -21,14 +24,22 @@ import { map, shareReplay } from 'rxjs/operators';
     MatSidenavModule,
     MatListModule,
     MatIconModule,
+    RouterLink
   ]
 })
-export class MainNavComponent {
+export class MainNavComponent implements OnInit{
   private breakpointObserver = inject(BreakpointObserver);
+  categories$ = this.store.select(selectCategories)
 
   isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
     .pipe(
       map(result => result.matches),
       shareReplay()
     );
+
+  constructor(private readonly store: Store){}
+
+  ngOnInit(): void {
+    this.store.dispatch(getCategoriesAction())
+  }
 }
